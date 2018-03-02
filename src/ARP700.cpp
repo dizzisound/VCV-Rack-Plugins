@@ -322,11 +322,15 @@ void ARP700_Widget_PatternChangeCallback ( void *pClass, int kb, int pat, int ma
 // Procedure:   Widget
 //
 //-----------------------------------------------------
-ARP700_Widget::ARP700_Widget() 
+struct ARP700_Widget : ModuleWidget {
+	ARP700_Widget(ARP700 *module);
+};
+
+ARP700_Widget::ARP700_Widget(ARP700 *module) : ModuleWidget(module) 
 {
     int x, y, note, param;
-	ARP700 *module = new ARP700();
-	setModule(module);
+	//API 0.6 changed//ARP700 *module = new ARP700();
+	//API 0.6 changed//setModule(module);
 	box.size = Vec( 15*27, 380);
 
 	{
@@ -401,29 +405,29 @@ ARP700_Widget::ARP700_Widget()
     }
 
     // clock trigger
-    addInput(createInput<MyPortInSmall>( Vec( 44, 21 ), module, ARP700::IN_CLOCK_TRIG ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 44, 21 ), Port::INPUT, module, ARP700::IN_CLOCK_TRIG ) );
 
     // VOCT offset input
-    addInput(createInput<MyPortInSmall>( Vec( 44, 52 ), module, ARP700::IN_VOCT_OFF ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 44, 52 ), Port::INPUT, module, ARP700::IN_VOCT_OFF ) );
 
     // prog change trigger
-    addInput(createInput<MyPortInSmall>( Vec( 44, 102 ), module, ARP700::IN_PROG_CHANGE ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 44, 102 ), Port::INPUT, module, ARP700::IN_PROG_CHANGE ) );
 
     // outputs
-    addOutput(createOutput<MyPortOutSmall>( Vec( 365, 38 ), module, ARP700::OUT_VOCTS ) );
-    addOutput(createOutput<MyPortOutSmall>( Vec( 365, 79 ), module, ARP700::OUT_TRIG ) );
+    addOutput(Port::create<MyPortOutSmall>( Vec( 365, 38 ), Port::OUTPUT, module, ARP700::OUT_VOCTS ) );
+    addOutput(Port::create<MyPortOutSmall>( Vec( 365, 79 ), Port::OUTPUT, module, ARP700::OUT_TRIG ) );
 
     // reset inputs
-    addInput(createInput<MyPortInSmall>( Vec( 14, 21 ), module, ARP700::IN_CLOCK_RESET ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 14, 21 ), Port::INPUT, module, ARP700::IN_CLOCK_RESET ) );
 
     // mode buttons
     module->m_pButtonMode = new MyLEDButtonStrip( 154, 360, 12, 12, 7, 10.0, 7, false, DWRGB( 180, 180, 180 ), DWRGB( 255, 255, 0 ), MyLEDButtonStrip::TYPE_EXCLUSIVE, 0, module, ARP700_ModeSelect );
 	addChild( module->m_pButtonMode );
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365))); 
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365))); 
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
     module->m_bInitialized = true;
 
@@ -683,7 +687,7 @@ void ARP700::ArpStep( bool bReset )
                 m_PatCtrl.virtstep = 0;
 
             if( m_PatternSave[ m_PatCtrl.pat ].mode == 6 )
-                modestp = (int)( randomf() * 20.0f );
+                modestp = (int)( randomUniform() * 20.0f );
             else
                 modestp = patmode[ m_PatternSave[ m_PatCtrl.pat ].mode ][ m_PatCtrl.virtstep ]; 
 
@@ -865,3 +869,5 @@ void ARP700::step()
     outputs[ OUT_VOCTS ].value = ( m_PatCtrl.fCvStartOut * m_PatCtrl.fglide ) + ( m_PatCtrl.fCvEndOut * ( 1.0 - m_PatCtrl.fglide ) );
 
 }
+
+Model *modelARP700 = Model::create<ARP700, ARP700_Widget>("mscHack", "ARP700", "ARP 700", SEQUENCER_TAG, OSCILLATOR_TAG);

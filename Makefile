@@ -1,11 +1,9 @@
+SLUG = mscHack
+VERSION = 0.6.0dev
 
-SOURCES = $(wildcard src/*.cpp)
+SOURCES += $(wildcard src/*.cpp)
 
-include ../../plugin.mk
+DISTRIBUTABLES += $(wildcard LICENSE*) res
 
-
-dist: all
-	mkdir -p dist/mscHack	
-	cp LICENSE* dist/mscHack/
-	cp plugin.* dist/mscHack/
-	cp -R res dist/mscHack/
+RACK_DIR ?= ../..
+include $(RACK_DIR)/plugin.mk

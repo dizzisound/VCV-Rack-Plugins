@@ -218,11 +218,15 @@ void SEQ_6x32x16_ProgramChangeCallback ( void *pClass, int ch, int pat, int max 
 // Procedure:   Widget
 //
 //-----------------------------------------------------
-SEQ_6x32x16_Widget::SEQ_6x32x16_Widget() 
+struct SEQ_6x32x16_Widget : ModuleWidget {
+	SEQ_6x32x16_Widget(SEQ_6x32x16 *module);
+};
+
+SEQ_6x32x16_Widget::SEQ_6x32x16_Widget(SEQ_6x32x16 *module) : ModuleWidget(module) 
 {
     int x, y, x2, y2;
-	SEQ_6x32x16 *module = new SEQ_6x32x16();
-	setModule(module);
+	//API 0.6 changed//SEQ_6x32x16 *module = new SEQ_6x32x16();
+	//API 0.6 changed//setModule(module);
 	box.size = Vec( 15*41, 380);
 
 	{
@@ -238,14 +242,14 @@ SEQ_6x32x16_Widget::SEQ_6x32x16_Widget()
     y = 22;
 
     // global inputs
-    addInput(createInput<MyPortInSmall>( Vec( 204, 357 ), module, SEQ_6x32x16::IN_GLOBAL_CLK_RESET ) );
-    addInput(createInput<MyPortInSmall>( Vec( 90, 357 ), module, SEQ_6x32x16::IN_GLOBAL_PAT_CHANGE ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 204, 357 ), Port::INPUT, module, SEQ_6x32x16::IN_GLOBAL_CLK_RESET ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 90, 357 ), Port::INPUT, module, SEQ_6x32x16::IN_GLOBAL_PAT_CHANGE ) );
 
     for( int ch = 0; ch < nCHANNELS; ch++ )
     {
         // inputs
-        addInput(createInput<MyPortInSmall>( Vec( x + 6, y + 7 ), module, SEQ_6x32x16::IN_CLK + ch ) );
-        addInput(createInput<MyPortInSmall>( Vec( x + 64, y + 31 ), module, SEQ_6x32x16::IN_PAT_TRIG + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x + 6, y + 7 ), Port::INPUT, module, SEQ_6x32x16::IN_CLK + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x + 64, y + 31 ), Port::INPUT, module, SEQ_6x32x16::IN_PAT_TRIG + ch ) );
 
         // pattern display
         module->m_pPatternDisplay[ ch ] = new SinglePatternClocked32( x + 39, y + 2, 13, 13, 5, 2, 7, DWRGB( 255, 128, 64 ), DWRGB( 18, 18, 0 ), DWRGB( 180, 75, 180 ), DWRGB( 80, 45, 80 ), nSTEPS, ch, module, SEQ_6x32x16_PatternChangeCallback );
@@ -257,12 +261,12 @@ SEQ_6x32x16_Widget::SEQ_6x32x16_Widget()
 
         // add knobs
         y2 = y + 34;
-        addParam(createParam<Green1_Tiny>( Vec( x + 374, y2 ), module, SEQ_6x32x16::PARAM_SWING_KNOB + ch, 0.0, 0.6, 0.0 ) );
+        addParam(ParamWidget::create<Green1_Tiny>( Vec( x + 374, y2 ), module, SEQ_6x32x16::PARAM_SWING_KNOB + ch, 0.0, 0.6, 0.0 ) );
 
         x2 = x + 447;
-        addParam(createParam<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_LO_KNOB + ch, 0.0, 1.0, 0.0 ) ); x2 += 24;
-        addParam(createParam<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_MD_KNOB + ch, 0.0, 1.0, 0.0 ) ); x2 += 24;
-        addParam(createParam<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_HI_KNOB + ch, 0.0, 1.0, 0.0 ) );
+        addParam(ParamWidget::create<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_LO_KNOB + ch, 0.0, 1.0, 0.0 ) ); x2 += 24;
+        addParam(ParamWidget::create<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_MD_KNOB + ch, 0.0, 1.0, 0.0 ) ); x2 += 24;
+        addParam(ParamWidget::create<Green1_Tiny>( Vec( x2, y2 ), module, SEQ_6x32x16::PARAM_HI_KNOB + ch, 0.0, 1.0, 0.0 ) );
 
         // add buttons
         module->m_pButtonAutoPat[ ch ] = new MyLEDButton( x + 55, y + 35, 9, 9, 6.0, DWRGB( 180, 180, 180 ), DWRGB( 0, 255, 0 ), MyLEDButton::TYPE_SWITCH, ch, module, MyLEDButton_AutoPat );
@@ -285,17 +289,17 @@ SEQ_6x32x16_Widget::SEQ_6x32x16_Widget()
 	    addChild( module->m_pButtonBiLevel[ ch ] );
 
         // add outputs
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 580, y + 7 ), module, SEQ_6x32x16::OUT_TRIG + ch ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 544, y + 33 ), module, SEQ_6x32x16::OUT_LEVEL + ch ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 37, y + 31 ), module, SEQ_6x32x16::OUT_BEAT1 + ch ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 580, y + 7 ), Port::OUTPUT, module, SEQ_6x32x16::OUT_TRIG + ch ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 544, y + 33 ), Port::OUTPUT, module, SEQ_6x32x16::OUT_LEVEL + ch ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 37, y + 31 ), Port::OUTPUT, module, SEQ_6x32x16::OUT_BEAT1 + ch ) );
 
         y += 56;
     }
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365))); 
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365))); 
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
     module->m_bInitialized = true;
 
@@ -622,7 +626,7 @@ void SEQ_6x32x16::randomize()
         {
             for( int i = 0; i < nSTEPS; i++ )
             {
-                m_Pattern[ ch ][ p ][ i ] = (int)(randomf() * 3.4 );
+                m_Pattern[ ch ][ p ][ i ] = (int)(randomUniform() * 3.4 );
             }
         }
 
@@ -638,7 +642,7 @@ void SEQ_6x32x16::Rand( int ch )
 {
     for( int i = 0; i < nSTEPS; i++ )
     {
-        m_Pattern[ ch ][ m_CurrentProg[ ch ] ][ i ] = (int)(randomf() * 3.4 );
+        m_Pattern[ ch ][ m_CurrentProg[ ch ] ][ i ] = (int)(randomUniform() * 3.4 );
     }
 
     m_pPatternDisplay[ ch ]->SetPatAll( m_Pattern[ ch ][ m_CurrentProg[ ch ] ] );
@@ -856,3 +860,5 @@ void SEQ_6x32x16::step()
         outputs[ OUT_LEVEL + ch ].value = CV_MAX * fout;
     }
 }
+
+Model *modelSEQ_6x32x16 = Model::create<SEQ_6x32x16, SEQ_6x32x16_Widget>("mscHack", "Seq_6ch_32step", "SEQ 6 x 32", SEQUENCER_TAG, MULTIPLE_TAG);

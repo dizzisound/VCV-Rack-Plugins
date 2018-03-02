@@ -222,11 +222,15 @@ void MyLEDButton_ChannelSync( void *pClass, int id, bool bOn )
 // Procedure:   Widget
 //
 //-----------------------------------------------------
-MasterClockx4_Widget::MasterClockx4_Widget() 
+struct MasterClockx4_Widget : ModuleWidget {
+	MasterClockx4_Widget(MasterClockx4 *module);
+};
+
+MasterClockx4_Widget::MasterClockx4_Widget(MasterClockx4 *module) : ModuleWidget(module)
 {
     int ch, x, y;
-	MasterClockx4 *module = new MasterClockx4();
-	setModule(module);
+	//API 0.6 changed//MasterClockx4 *module = new MasterClockx4();
+	//API 0.6 changed//setModule(module);
 	box.size = Vec( 15*25, 380);
 
 	{
@@ -239,7 +243,7 @@ MasterClockx4_Widget::MasterClockx4_Widget()
     //module->lg.Open("MasterClockx4.txt");
 
     // bpm knob
-    module->m_pBpmKnob = createParam<MasterClockx4::MyBPM_Knob>( Vec( 9, 50 ), module, MasterClockx4::PARAM_BPM, 60.0, 220.0, 120.0 );
+    module->m_pBpmKnob = ParamWidget::create<MasterClockx4::MyBPM_Knob>( Vec( 9, 50 ), module, MasterClockx4::PARAM_BPM, 60.0, 220.0, 120.0 );
     addParam( module->m_pBpmKnob );
 
     // bpm display
@@ -255,14 +259,14 @@ MasterClockx4_Widget::MasterClockx4_Widget()
 	addChild( module->m_pButtonGlobalTrig );
 
     // humanize knob
-    module->m_pHumanKnob = createParam<MasterClockx4::MyHumanize_Knob>( Vec( 22, 235 ), module, MasterClockx4::PARAM_HUMANIZE, 0.0, 1.0, 0.0 );
+    module->m_pHumanKnob = ParamWidget::create<MasterClockx4::MyHumanize_Knob>( Vec( 22, 235 ), module, MasterClockx4::PARAM_HUMANIZE, 0.0, 1.0, 0.0 );
     addParam( module->m_pHumanKnob );
 
     // add chain out
-    addOutput(createOutput<MyPortOutSmall>( Vec( 30, 345 ), module, MasterClockx4::OUTPUT_CHAIN ) );
+    addOutput(Port::create<MyPortOutSmall>( Vec( 30, 345 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_CHAIN ) );
 
     // chain in
-    addInput(createInput<MyPortInSmall>( Vec( 30, 13 ), module, MasterClockx4::INPUT_CHAIN ) );
+    addInput(Port::create<MyPortInSmall>( Vec( 30, 13 ), Port::INPUT, module, MasterClockx4::INPUT_CHAIN ) );
 
     x = 74;
     y = 36;
@@ -270,7 +274,7 @@ MasterClockx4_Widget::MasterClockx4_Widget()
     for( ch = 0; ch < nCHANNELS; ch++ )
     {
         // clock mult knob
-        addParam(createParam<MasterClockx4::MyMult_Knob>( Vec( x + 36, y + 8 ), module, MasterClockx4::PARAM_MULT + ch, 0, 24, 12 ) );
+        addParam(ParamWidget::create<MasterClockx4::MyMult_Knob>( Vec( x + 36, y + 8 ), module, MasterClockx4::PARAM_MULT + ch, 0, 24, 12 ) );
 
         // mult display
         module->m_pDigitDisplayMult[ ch ] = new MyLED7DigitDisplay( x + 33, y + 44, 0.07, DWRGB( 0, 0, 0 ), DWRGB( 0xFF, 0xFF, 0xFF ), MyLED7DigitDisplay::TYPE_INT, 2 );
@@ -280,28 +284,29 @@ MasterClockx4_Widget::MasterClockx4_Widget()
         module->m_pButtonTrig[ ch ] = new MyLEDButton( x + 192, y + 6, 19, 19, 15.0, DWRGB( 180, 180, 180 ), DWRGB( 0, 255, 255 ), MyLEDButton::TYPE_MOMENTARY, ch, module, MyLEDButton_ChannelSync );
 	    addChild( module->m_pButtonTrig[ ch ] );
 
-        addInput(createInput<MyPortInSmall>( Vec( x + 170, y + 7 ), module, MasterClockx4::INPUT_EXT_SYNC + ch ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 170, y + 33 ), module, MasterClockx4::OUTPUT_TRIG  + (ch * 4) + 0 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 170, y + 55 ), module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 1 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 193, y + 33 ), module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 2 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 193, y + 55 ), module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 3 ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x + 170, y + 7 ), Port::INPUT, module, MasterClockx4::INPUT_EXT_SYNC + ch ) );
+        
+		addOutput(Port::create<MyPortOutSmall>( Vec( x + 170, y + 33 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_TRIG  + (ch * 4) + 0 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 170, y + 55 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 1 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 193, y + 33 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 2 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 193, y + 55 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_TRIG + (ch * 4) + 3 ) );
 
         // clock out
         module->m_pButtonStop[ ch ] = new MyLEDButton( x + 192 + 56, y + 6, 19, 19, 15.0, DWRGB( 180, 180, 180 ), DWRGB( 255, 0, 0 ), MyLEDButton::TYPE_SWITCH, ch, module, MyLEDButton_ChannelStop );
 	    addChild( module->m_pButtonStop[ ch ] );
 
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 170 + 56, y + 33 ), module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 0 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 170 + 56, y + 55 ), module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 1 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 193 + 56, y + 33 ), module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 2 ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x + 193 + 56, y + 55 ), module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 3 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 170 + 56, y + 33 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 0 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 170 + 56, y + 55 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 1 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 193 + 56, y + 33 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 2 ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x + 193 + 56, y + 55 ), Port::OUTPUT, module, MasterClockx4::OUTPUT_CLK + (ch * 4) + 3 ) );
 
         y += 80;
     }
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365))); 
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365))); 
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
     module->m_bInitialized = true;
 
@@ -422,9 +427,9 @@ void MasterClockx4::reset()
 //-----------------------------------------------------
 void MasterClockx4::GetNewHumanizeVal( void )
 {
-    m_fHumanize = randomf() * engineGetSampleRate() * 0.1 * params[ PARAM_HUMANIZE ].value;
+    m_fHumanize = randomUniform() * engineGetSampleRate() * 0.1 * params[ PARAM_HUMANIZE ].value;
 
-    if( randomf() > 0.5 )
+    if( randomUniform() > 0.5 )
         m_fHumanize *= -1;
 }
 
@@ -603,3 +608,5 @@ void MasterClockx4::step()
 
     m_bGlobalSync = false;
 }
+
+Model *modelMasterClockx4 = Model::create<MasterClockx4, MasterClockx4_Widget>("mscHack", "MasterClockx4", "Master CLOCK x 4", CLOCK_TAG, QUAD_TAG);

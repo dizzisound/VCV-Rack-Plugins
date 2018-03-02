@@ -128,11 +128,16 @@ struct Mix_4x4_Stereo_old : Module
 // Procedure:   Widget
 //
 //-----------------------------------------------------
-Mix_4x4_Stereo_Widget_old::Mix_4x4_Stereo_Widget_old() 
+
+struct Mix_4x4_Stereo_Widget_old : ModuleWidget {
+	Mix_4x4_Stereo_Widget_old(Mix_4x4_Stereo_old *module);
+};
+
+Mix_4x4_Stereo_Widget_old::Mix_4x4_Stereo_Widget_old(Mix_4x4_Stereo_old *module) : ModuleWidget(module)
 {
     int ch, x, y, i, ybase;
-	Mix_4x4_Stereo_old *module = new Mix_4x4_Stereo_old();
-	setModule(module);
+	//API 0.6 changed//Mix_4x4_Stereo_old *module = new Mix_4x4_Stereo_old();
+	//API 0.6 changed//setModule(module);
 	box.size = Vec( 15*47, 380);
 
 	{
@@ -144,10 +149,10 @@ Mix_4x4_Stereo_Widget_old::Mix_4x4_Stereo_Widget_old()
 
     //module->lg.Open("Mix_4x4_Stereo_old.txt");
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365))); 
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365))); 
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
     //addInput(createInput<MyPortInSmall>( Vec( 6, 40 ), module, Mix_4x4_Stereo_old::IN_WAVE ) );
     //addOutput(createOutput<MyPortOutSmall>( Vec( 50, 40 ), module, Mix_4x4_Stereo_old::OUT_WAVE ) );
@@ -161,48 +166,48 @@ Mix_4x4_Stereo_Widget_old::Mix_4x4_Stereo_Widget_old()
 	for ( ch = 0; ch < CHANNELS; ch++ ) 
     {
         // Left channel inputs
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_LEFT + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_LEFT + ch ) );
 
         y += 27;
 
         // Right channel inputs
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_RIGHT + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_RIGHT + ch ) );
 
         y += 30;
 
         // Level knobs
-        addParam(createParam<Blue2_Small>( Vec( x - 5, y ), module, Mix_4x4_Stereo_old::PARAM_LEVEL_IN + ch, 0.0, 2.0, 0.0 ) );
+        addParam(ParamWidget::create<Blue2_Small>( Vec( x - 5, y ), module, Mix_4x4_Stereo_old::PARAM_LEVEL_IN + ch, 0.0, 2.0, 0.0 ) );
 
         y += 34;
 
         // Level inputs
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_LEVEL + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_LEVEL + ch ) );
 
         y += 31;
 
         // pan knobs
-        addParam(createParam<Yellow2_Small>( Vec( x - 5, y ), module, Mix_4x4_Stereo_old::PARAM_PAN_IN + ch, -1.0, 1.0, 0.0 ) );
+        addParam(ParamWidget::create<Yellow2_Small>( Vec( x - 5, y ), module, Mix_4x4_Stereo_old::PARAM_PAN_IN + ch, -1.0, 1.0, 0.0 ) );
 
         y += 34;
 
         // Pan inputs
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_PAN + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_PAN + ch ) );
 
         y += 35;
 
         // mute buttons
-        addInput(createInput<MyPortInSmall>( Vec( x - 8, y ), module, Mix_4x4_Stereo_old::IN_MUTES + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x - 8, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_MUTES + ch ) );
 
-        addParam(createParam<MySquareButton2>( Vec( x + 11, y + 1 ), module, Mix_4x4_Stereo_old::PARAM_MUTE_BUTTON + ch, 0.0, 1.0, 0.0 ) );
-        addChild(createLight<SmallLight<RedLight>>( Vec( x + 14, y + 5 ), module, Mix_4x4_Stereo_old::LIGHT_MUTE + ch ) );
+        addParam(ParamWidget::create<MySquareButton2>( Vec( x + 11, y + 1 ), module, Mix_4x4_Stereo_old::PARAM_MUTE_BUTTON + ch, 0.0, 1.0, 0.0 ) );
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>( Vec( x + 14, y + 5 ), module, Mix_4x4_Stereo_old::LIGHT_MUTE + ch ) );
 
         y += 26;
 
         // solo buttons
-        addInput(createInput<MyPortInSmall>( Vec( x - 8, y ), module, Mix_4x4_Stereo_old::IN_SOLOS + ch ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x - 8, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_SOLOS + ch ) );
 
-        addParam(createParam<MySquareButton2>( Vec( x + 11, y ), module, Mix_4x4_Stereo_old::PARAM_SOLO_BUTTON + ch, 0.0, 1.0, 0.0 ) );
-        addChild(createLight<SmallLight<GreenLight>>( Vec( x + 14, y + 5 ), module, Mix_4x4_Stereo_old::LIGHT_SOLO + ch ) );
+        addParam(ParamWidget::create<MySquareButton2>( Vec( x + 11, y ), module, Mix_4x4_Stereo_old::PARAM_SOLO_BUTTON + ch, 0.0, 1.0, 0.0 ) );
+        addChild(ModuleLightWidget::create<SmallLight<GreenLight>>( Vec( x + 14, y + 5 ), module, Mix_4x4_Stereo_old::LIGHT_SOLO + ch ) );
 
         if( ( ch & 3 ) == 3 )
         {
@@ -223,63 +228,63 @@ Mix_4x4_Stereo_Widget_old::Mix_4x4_Stereo_Widget_old()
     {
         // mute/solo inputs
         y = ybase + 23;
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_GROUP_MUTE + i ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_GROUP_MUTE + i ) );
 
         y += 30;
 
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_GROUP_SOLO + i ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_GROUP_SOLO + i ) );
 
         // mute/solo buttons
         x += 23;
         y = ybase + 21;
 
-        addParam(createParam<MySquareButton2>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_MUTE + i, 0.0, 1.0, 0.0 ) );
-        addChild(createLight<SmallLight<RedLight>>( Vec( x + 3, y + 4 ), module, Mix_4x4_Stereo_old::LIGHT_GROUP_MUTE + i ) );
+        addParam(ParamWidget::create<MySquareButton2>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_MUTE + i, 0.0, 1.0, 0.0 ) );
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>( Vec( x + 3, y + 4 ), module, Mix_4x4_Stereo_old::LIGHT_GROUP_MUTE + i ) );
         y += 30;
 
-        addParam(createParam<MySquareButton2>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_SOLO + i, 0.0, 1.0, 0.0 ) );
-        addChild(createLight<SmallLight<GreenLight>>( Vec( x + 3, y + 4 ), module, Mix_4x4_Stereo_old::LIGHT_GROUP_SOLO + i ) );
+        addParam(ParamWidget::create<MySquareButton2>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_SOLO + i, 0.0, 1.0, 0.0 ) );
+        addChild(ModuleLightWidget::create<SmallLight<GreenLight>>( Vec( x + 3, y + 4 ), module, Mix_4x4_Stereo_old::LIGHT_GROUP_SOLO + i ) );
 
         // group level and pan inputs
         x += 24;
         y = ybase + 11;
 
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_GROUP_LEVEL + i ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_GROUP_LEVEL + i ) );
 
         y += 40;
 
-        addInput(createInput<MyPortInSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::IN_GROUP_PAN + i ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x, y ), Port::INPUT, module, Mix_4x4_Stereo_old::IN_GROUP_PAN + i ) );
 
         // group level and pan knobs
         x += 24;
         y = ybase + 6;
 
-        addParam(createParam<Blue2_Small>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_LEVEL_IN + i, 0.0, 2.0, 0.0 ) );
+        addParam(ParamWidget::create<Blue2_Small>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_LEVEL_IN + i, 0.0, 2.0, 0.0 ) );
 
         y += 39;
 
-        addParam(createParam<Yellow2_Small>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_PAN_IN + i, -1.0, 1.0, 0.0 ) );
+        addParam(ParamWidget::create<Yellow2_Small>( Vec( x, y ), module, Mix_4x4_Stereo_old::PARAM_GROUP_PAN_IN + i, -1.0, 1.0, 0.0 ) );
 
         // group outputs
         x += 36;
         y = ybase + 29;
 
-        addOutput(createOutput<MyPortOutSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::OUT_GROUPL + i ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x, y ), Port::OUTPUT, module, Mix_4x4_Stereo_old::OUT_GROUPL + i ) );
 
         y += 31;
 
-        addOutput(createOutput<MyPortOutSmall>( Vec( x, y ), module, Mix_4x4_Stereo_old::OUT_GROUPR + i ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x, y ), Port::OUTPUT, module, Mix_4x4_Stereo_old::OUT_GROUPR + i ) );
 
         // account for slight error in pixel conversion to svg area
         x += 45 + ( i * 2 );
     }
 
     // main mixer knob 
-    addParam(createParam<Blue2_Big>( Vec( 633, 237 ), module, Mix_4x4_Stereo_old::PARAM_MAIN_LEVEL, 0.0, 2.0, 0.0 ) );
+    addParam(ParamWidget::create<Blue2_Big>( Vec( 633, 237 ), module, Mix_4x4_Stereo_old::PARAM_MAIN_LEVEL, 0.0, 2.0, 0.0 ) );
 
     // outputs
-    addOutput(createOutput<MyPortOutSmall>( Vec( 636, 305 ), module, Mix_4x4_Stereo_old::OUT_MAINL ) );
-    addOutput(createOutput<MyPortOutSmall>( Vec( 668, 335 ), module, Mix_4x4_Stereo_old::OUT_MAINR ) );
+    addOutput(Port::create<MyPortOutSmall>( Vec( 636, 305 ), Port::OUTPUT, module, Mix_4x4_Stereo_old::OUT_MAINL ) );
+    addOutput(Port::create<MyPortOutSmall>( Vec( 668, 335 ), Port::OUTPUT, module, Mix_4x4_Stereo_old::OUT_MAINR ) );
 
     reset();
 }
@@ -766,7 +771,7 @@ void Mix_4x4_Stereo_old::step()
             // check right channel first for possible mono
             if( inputs[ IN_RIGHT + ch ].active )
             {
-                inR = inputs[ IN_RIGHT + ch ].value * clampf( ( params[ PARAM_LEVEL_IN + ch ].value + ( inputs[ IN_LEVEL + ch ].normalize( 0.0 ) / 10.0 ) ), -1.0, 1.0 ); 
+                inR = inputs[ IN_RIGHT + ch ].value * clamp( ( params[ PARAM_LEVEL_IN + ch ].value + ( inputs[ IN_LEVEL + ch ].normalize( 0.0f ) / 10.0f ) ), -1.0f, 1.0f ); 
                 m_bMono[ ch ] = false;
             }
             else
@@ -775,7 +780,7 @@ void Mix_4x4_Stereo_old::step()
             // left channel
             if( inputs[ IN_LEFT + ch ].active )
             {
-                inL = inputs[ IN_LEFT + ch ].value * clampf( ( params[ PARAM_LEVEL_IN + ch ].value + ( inputs[ IN_LEVEL + ch ].normalize( 0.0 ) / 10.0 ) ), -1.0, 1.0 ); 
+                inL = inputs[ IN_LEFT + ch ].value * clamp( ( params[ PARAM_LEVEL_IN + ch ].value + ( inputs[ IN_LEVEL + ch ].normalize( 0.0f ) / 10.0f ) ), -1.0f, 1.0f ); 
 
                 if( m_bMono[ ch ] )
                     inR = inL;
@@ -806,7 +811,7 @@ void Mix_4x4_Stereo_old::step()
             inR *= m_fMuteFade[ ch ];
 
             // pan
-            pan = clampf( params[ PARAM_PAN_IN + ch ].value + ( inputs[ IN_PAN + ch ].normalize( 0.0 ) / 10.0 ), -1.0, 1.0 );
+            pan = clamp( params[ PARAM_PAN_IN + ch ].value + ( inputs[ IN_PAN + ch ].normalize( 0.0f ) / 10.0f ), -1.0f, 1.0f );
 
             //lg.f("pan = %.3f\n", inputs[ IN_PAN + ch ].value );
 
@@ -862,11 +867,11 @@ void Mix_4x4_Stereo_old::step()
                 ProcessMuteSolo( group, false, true );
             }
 
-            outL = m_fSubMix[ group ][ L ] * clampf( params[ PARAM_GROUP_LEVEL_IN + group ].value + ( inputs[ IN_GROUP_LEVEL + group ].normalize( 0.0 ) / 10.0 ), -1.0, 1.0 );
-            outR = m_fSubMix[ group ][ R ] * clampf( params[ PARAM_GROUP_LEVEL_IN + group ].value + ( inputs[ IN_GROUP_LEVEL + group ].normalize( 0.0 ) / 10.0 ), -1.0, 1.0 );
+            outL = m_fSubMix[ group ][ L ] * clamp( params[ PARAM_GROUP_LEVEL_IN + group ].value + ( inputs[ IN_GROUP_LEVEL + group ].normalize( 0.0f ) / 10.0f ), -1.0f, 1.0f );
+            outR = m_fSubMix[ group ][ R ] * clamp( params[ PARAM_GROUP_LEVEL_IN + group ].value + ( inputs[ IN_GROUP_LEVEL + group ].normalize( 0.0f ) / 10.0f ), -1.0f, 1.0f );
 
             // pan
-            pan = clampf( params[ PARAM_GROUP_PAN_IN + group ].value + ( inputs[ IN_GROUP_PAN + group ].normalize( 0.0 ) / 10.0 ), -1.0, 1.0 );
+            pan = clamp( params[ PARAM_GROUP_PAN_IN + group ].value + ( inputs[ IN_GROUP_PAN + group ].normalize( 0.0f ) / 10.0f ), -1.0f, 1.0f );
 
             if( pan <= 0.0 )
                 outR *= ( 1.0 + pan );
@@ -908,3 +913,5 @@ void Mix_4x4_Stereo_old::step()
     outputs[ OUT_MAINL ].value = mainL * params[ PARAM_MAIN_LEVEL ].value;
     outputs[ OUT_MAINR ].value = mainR * params[ PARAM_MAIN_LEVEL ].value;
 }
+
+Model *modelMix_4x4_Stereo_old = Model::create<Mix_4x4_Stereo_old, Mix_4x4_Stereo_Widget_old>("mscHack", "Mix_4x4_Stereo", "MIXER 4x4 (old) OBSOLETE!", MIXER_TAG, QUAD_TAG, PANNING_TAG, AMPLIFIER_TAG, MULTIPLE_TAG);

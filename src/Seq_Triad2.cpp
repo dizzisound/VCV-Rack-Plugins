@@ -234,11 +234,15 @@ void Seq_Triad2_Widget_PhraseChangeCallback ( void *pClass, int kb, int pat, int
 // Procedure:   Widget
 //
 //-----------------------------------------------------
-Seq_Triad2_Widget::Seq_Triad2_Widget() 
+struct Seq_Triad2_Widget : ModuleWidget {
+	Seq_Triad2_Widget(Seq_Triad2 *module);
+};
+
+Seq_Triad2_Widget::Seq_Triad2_Widget(Seq_Triad2 *module) : ModuleWidget(module) 
 {
     int kb, x, x2, y, y2;
-	Seq_Triad2 *module = new Seq_Triad2();
-	setModule(module);
+	//API 0.6 changed//Seq_Triad2 *module = new Seq_Triad2();
+	//API 0.6 changed//setModule(module);
 	box.size = Vec( 15*25, 380);
 
 	{
@@ -266,7 +270,7 @@ Seq_Triad2_Widget::Seq_Triad2_Widget()
 	    addChild( module->m_pButtonTrig[ kb ] );
 
         // glide knob
-        addParam( createParam<Yellow1_Tiny>( Vec( x + 220, y + 86 ), module, Seq_Triad2::PARAM_GLIDE + kb, 0.0, 1.0, 0.0 ) );
+        addParam(ParamWidget::create<Yellow1_Tiny>( Vec( x + 220, y + 86 ), module, Seq_Triad2::PARAM_GLIDE + kb, 0.0, 1.0, 0.0 ) );
 
         x2 = x + 274;
 
@@ -289,31 +293,31 @@ Seq_Triad2_Widget::Seq_Triad2_Widget()
         x2 = x + 9;
         y2 = y + 4;
         // prog change trigger
-        addInput(createInput<MyPortInSmall>( Vec( x2, y2 ), module, Seq_Triad2::IN_PATTERN_TRIG + kb ) ); y2 += 40;
+        addInput(Port::create<MyPortInSmall>( Vec( x2, y2 ), Port::INPUT, module, Seq_Triad2::IN_PATTERN_TRIG + kb ) ); y2 += 40;
 
         // VOCT offset input
-        addInput(createInput<MyPortInSmall>( Vec( x2, y2 ), module, Seq_Triad2::IN_VOCT_OFF + kb ) ); y2 += 40;
+        addInput(Port::create<MyPortInSmall>( Vec( x2, y2 ), Port::INPUT, module, Seq_Triad2::IN_VOCT_OFF + kb ) ); y2 += 40;
 
         // prog change trigger
-        addInput(createInput<MyPortInSmall>( Vec( x2, y2 ), module, Seq_Triad2::IN_PROG_CHANGE + kb ) );
+        addInput(Port::create<MyPortInSmall>( Vec( x2, y2 ), Port::INPUT, module, Seq_Triad2::IN_PROG_CHANGE + kb ) );
 
         // outputs
         x2 = x + 330;
-        addOutput(createOutput<MyPortOutSmall>( Vec( x2, y + 27 ), module, Seq_Triad2::OUT_VOCTS + kb ) );
-        addOutput(createOutput<MyPortOutSmall>( Vec( x2, y + 68 ), module, Seq_Triad2::OUT_TRIG + kb ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x2, y + 27 ), Port::OUTPUT, module, Seq_Triad2::OUT_VOCTS + kb ) );
+        addOutput(Port::create<MyPortOutSmall>( Vec( x2, y + 68 ), Port::OUTPUT, module, Seq_Triad2::OUT_TRIG + kb ) );
 
         y += 111;
     }
 
     // reset inputs
     y2 = 357; 
-    addInput(createInput<MyPortInSmall>( Vec( x + 89, y2 ), module, Seq_Triad2::IN_CLOCK_RESET ) );
-    addInput(createInput<MyPortInSmall>( Vec( x + 166, y2 ), module, Seq_Triad2::IN_GLOBAL_PAT_CLK ) );
+    addInput(Port::create<MyPortInSmall>( Vec( x + 89, y2 ), Port::INPUT, module, Seq_Triad2::IN_CLOCK_RESET ) );
+    addInput(Port::create<MyPortInSmall>( Vec( x + 166, y2 ), Port::INPUT, module, Seq_Triad2::IN_GLOBAL_PAT_CLK ) );
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365))); 
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365))); 
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
     module->m_bInitialized = true;
 
@@ -364,22 +368,22 @@ void Seq_Triad2::randomize()
     memset( m_fCvEndOut, 0, sizeof(m_fCvEndOut) );
     memset( m_PatternNotes, 0, sizeof(m_PatternNotes) );
 
-    basekey = (int)(randomf() * 24.4);
+    basekey = (int)(randomUniform() * 24.4);
 
     for( kb = 0; kb < nKEYBOARDS; kb++ )
     {
-        m_Octave[ kb ] = (int)( randomf() * 3.4 );
+        m_Octave[ kb ] = (int)( randomUniform() * 3.4 );
 
         for( pat = 0; pat < nPATTERNS; pat++ )
         {
             for( phrase = 0; phrase < nPHRASE_SAVES; phrase++ )
             {
-                if( randomf() > 0.7 )
-                    note = keyscalenotes_minor[ (int)(randomf() * 7.4 ) ];
+                if( randomUniform() > 0.7 )
+                    note = keyscalenotes_minor[ (int)(randomUniform() * 7.4 ) ];
                 else
-                    note = keyscalenotes[ (int)(randomf() * 7.4 ) ];
+                    note = keyscalenotes[ (int)(randomUniform() * 7.4 ) ];
 
-                m_PatternNotes[ kb ][ phrase ][ pat ].bTrigOff = ( randomf() < 0.10 );
+                m_PatternNotes[ kb ][ phrase ][ pat ].bTrigOff = ( randomUniform() < 0.10 );
                 m_PatternNotes[ kb ][ phrase ][ pat ].note = basekey + note; 
             }
         }
@@ -898,3 +902,5 @@ void Seq_Triad2::step()
     if( bGlobalClkTriggered )
         m_GlobalClkResetPending = false;
 }
+
+Model *modelSeq_Triad2 = Model::create<Seq_Triad2, Seq_Triad2_Widget>("mscHack", "TriadSeq2", "SEQ Triad 2", SEQUENCER_TAG, MULTIPLE_TAG);
